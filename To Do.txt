@@ -1,0 +1,8 @@
+1.  Wrapping it in a java app
+2.  Adding Ambers and Health Recovery
+3.  Adding Sound
+4.  Adding Extra Stages
+5.  Adding High Score Feature
+6.  Improving graphics 
+7.  Adding Restart Feature
+8.  Adding Login feature
