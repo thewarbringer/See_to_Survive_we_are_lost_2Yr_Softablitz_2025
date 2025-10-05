@@ -1,11 +1,19 @@
 import pygame 
-import random 
+import random
+from pygame import mixer
 pygame.init()
+mixer.init()
+coin_sound= mixer.Sound("resources/music/coin.mp3")
+aah_sound = mixer.Sound("resources/music/aah.mp3")
+one_up_sound = mixer.Sound("resources/music/oneup.mp3")
+mixer.music.load("resources/music/thunder.mp3")
+mixer.music.set_volume(1)
+mixer.music.play(-1)
 gameWindow = pygame.display.set_mode((600,600))
 pygame.display.set_caption("See To Survive")
 pygame.display.update()
 
-
+isinplay = False
 #game specific variables
 char_image = [pygame.image.load('resources/images/s1.png'),pygame.image.load("resources/images/s2.png"),pygame.image.load("resources/images/s3.png"),pygame.image.load("resources/images/s4.png"),pygame.image.load("resources/images/s5.png")]
 colors = [(0,0,0),(255,0,0),(255,255,0),(0,255,0),(0,150,0)]    #colors for healthbar
@@ -25,19 +33,29 @@ wc = 1;
 m=0             #state of flame
 ud = 0          #to prevent instant state change to 4
 hogaya = 0      #to prevent instant level change to max
-
-
+amber_count = 0
+amber_waiter = 0
 empty = 7 #initial setting of the zeroes in matrix
 counter_of_waves=1
-matrix = [0,0,0,0,0,0,0,0,0,0,0,0,] #matrix for the drops
-
+matrix = [0,0,0,0,0,0,0,0,0,0,0,0] #matrix for the drops
+amb = 0
 backs = [pygame.image.load("resources/images/back1.png"),pygame.image.load("resources/images/back2.png"),pygame.image.load("resources/images/back3.png"),pygame.image.load("resources/images/back4.png"),pygame.image.load("resources/images/back5.png"),pygame.image.load("resources/images/back6.png")]
-
+amber = pygame.image.load("resources/images/amber.png")
 drops = [pygame.image.load("resources/images/dropsmall.png"),pygame.image.load("resources/images/dropbig.png")]
+
 def draw_drops():
     for i in range(12):
-        if matrix[i] != 0:
+        if matrix[i] != 0 :
             gameWindow.blit(drops[matrix[i]-1],(50*i,cc*50))
+
+def generate_amber():
+    global amb
+    global amber_waiter 
+    if(amber_waiter == 0):
+        if m>0 and (score%6==0) :
+            amber_waiter = 48;
+            k = random.randint(0,11)
+            amb = k 
 
 def fill_matrix():
     global empty
@@ -62,7 +80,6 @@ currentCharacterState = 1;
 
 
 while not exit_game:
-    
     if(cc == 1):
         gameWindow.blit(backs[4],(0,0))
     elif cc == 2:
@@ -88,15 +105,18 @@ while not exit_game:
 
     if(cc == 12):
         fill_matrix()
-        print(empty)
-        print(matrix)
-    draw_drops()
+    if not game_over:
+        draw_drops()
    
     gameWindow.blit(char_image[m],(ch_x,ch_y))
     
+    pygame.draw.rect(gameWindow,(255,255,255),(50,45,160,30))
+    pygame.draw.rect(gameWindow,(255,0,255),(55,50,(50*amber_count),20))
     pygame.draw.rect(gameWindow,(255,255,255),(375,45,210,30))
     pygame.draw.rect(gameWindow,colors[4-m],(380,50,50*(4-m),20))
-    
+    if(amber_waiter > 0):
+        gameWindow.blit(amber,(amb*50,550))
+        amber_waiter = amber_waiter - 1
     pygame.display.update()
     if(cc == 12):
         ud = 0
@@ -107,14 +127,30 @@ while not exit_game:
         k=0
     else:
         k=1
+    if(cc == 2):
+        generate_amber()
+    if(currentCharacterLocation == amb and amber_waiter>0):
+        amber_waiter = 0
+        amber_count = amber_count+1
+        if(amber_count == 3):
+            one_up_sound.play()
+            amber_count= 0
+            if(m!= 0):
+                m = m -1
+        else:
+            coin_sound.play()
     if(cc == 11 and ud == 0):
+        if(matrix[currentCharacterLocation]!=0 and ud ==0 and not game_over):
+            aah_sound.play()
         if((m+matrix[currentCharacterLocation]) <= 5 ):
             if((m+matrix[currentCharacterLocation])==5):
                 m = 4
                 ud = 1
+                
             else:
                 m = m + matrix[currentCharacterLocation]
                 ud=1
+
     if(m == 4):
         game_over=True
     
