@@ -3,6 +3,9 @@ import random
 from pygame import mixer
 pygame.init()
 mixer.init()
+
+pygame.font.init() 
+my_font = pygame.font.SysFont('Comic Sans MS', 30)
 coin_sound= mixer.Sound("resources/music/coin.mp3")
 aah_sound = mixer.Sound("resources/music/aah.mp3")
 one_up_sound = mixer.Sound("resources/music/oneup.mp3")
@@ -98,16 +101,20 @@ while not exit_game:
                 ch_x = ch_x - 50
                 currentCharacterLocation = currentCharacterLocation-1
     if(waiter == 0):
-        waiter = original_waiter
-        cc = cc +1
+        if not game_over:
+            waiter = original_waiter
+            cc = cc +1
     else:
-        waiter = waiter - 1    
+        if not game_over:
+            waiter = waiter - 1    
 
     if(cc == 12):
         fill_matrix()
     if not game_over:
         draw_drops()
-   
+    texti = "Score :"+str(score)
+    text_surface = my_font.render(texti, False, (155, 255, 255))
+    gameWindow.blit(text_surface, (50,80))
     gameWindow.blit(char_image[m],(ch_x,ch_y))
     
     pygame.draw.rect(gameWindow,(255,255,255),(50,45,160,30))
