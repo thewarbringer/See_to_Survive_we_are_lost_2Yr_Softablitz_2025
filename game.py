@@ -16,13 +16,12 @@ gameWindow = pygame.display.set_mode((600,600))
 pygame.display.set_caption("See To Survive")
 pygame.display.update()
 
-isinplay = False #for later use
-
+isinplay = False
 #game specific variables
 char_image = [pygame.image.load('resources/images/s1.png'),pygame.image.load("resources/images/s2.png"),pygame.image.load("resources/images/s3.png"),pygame.image.load("resources/images/s4.png"),pygame.image.load("resources/images/s5.png")]
 colors = [(0,0,0),(255,0,0),(255,255,0),(0,255,0),(0,150,0)]    #colors for healthbar
 exit_game = False
-game_over = False 
+game_over = False
 ch_x = 300 #POSITION OF CHARACTER IN X
 ch_y = 500  #POSITION OF CHARACTER IN Y
 ch_size = 50 #SIZE OF SPRITE
@@ -34,19 +33,27 @@ cc = 0;
 waiter = 5              #waiter is for speed, less waiter => high speed
 original_waiter = 5     #waiter resets to original waiter
 wc = 1;
-m=0                 #state of flame / state of character
-ud = 0              #to prevent instant state change to 4
-hogaya = 0          #to prevent instant level change to max
-amber_count = 0     #to check no. of ambers collected
-amber_waiter = 0    #to give delay in amber disappearing
-empty = 7           #initial setting of the zeroes in matrix
+m=0             #state of flame
+ud = 0          #to prevent instant state change to 4
+hogaya = 0      #to prevent instant level change to max
+amber_count = 0
+amber_waiter = 0
+empty = 7 #initial setting of the zeroes in matrix
 counter_of_waves=1
 matrix = [0,0,0,0,0,0,0,0,0,0,0,0] #matrix for the drops
-amb = 0             #setting location of amber 
+amb = 0
 backs = [pygame.image.load("resources/images/back1.png"),pygame.image.load("resources/images/back2.png"),pygame.image.load("resources/images/back3.png"),pygame.image.load("resources/images/back4.png"),pygame.image.load("resources/images/back5.png"),pygame.image.load("resources/images/back6.png")]
 amber = pygame.image.load("resources/images/amber.png")
 drops = [pygame.image.load("resources/images/dropsmall.png"),pygame.image.load("resources/images/dropbig.png")]
 
+def update_high(score):
+    a = open("resources/high.txt","r")
+    k = a.read()
+    s = int(k)
+    if(score>s):
+        a = open("resources/high.txt","w")
+        a.write(str(score))
+        
 def draw_drops():
     for i in range(12):
         if matrix[i] != 0 :
@@ -78,12 +85,16 @@ def fill_matrix():
         matrix[k] = 0
 
 currentCharacterLocation = 6;
+currentCharacterState = 1;
 
 
-
-
-
+uph = 0
+a1 = open("resources/high.txt","r")
+high_score = a1.read()
+    
 while not exit_game:
+    if(uph != 1):
+        uph =1;
     if(cc == 1):
         gameWindow.blit(backs[4],(0,0))
     elif cc == 2:
@@ -93,6 +104,7 @@ while not exit_game:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit_game = True
+
         if event.type == pygame.KEYDOWN and (not game_over):
             if event.key == pygame.K_RIGHT and ch_x < 550  :
                 ch_x = ch_x + 50;
@@ -114,7 +126,11 @@ while not exit_game:
         draw_drops()
     texti = "Score :"+str(score)
     text_surface = my_font.render(texti, False, (155, 255, 255))
+    text2 = "High Score :"+str(high_score)
+    text_surface2 = my_font.render(text2, False, (155, 255, 255))
+    
     gameWindow.blit(text_surface, (50,80))
+    gameWindow.blit(text_surface2, (380,80))
     gameWindow.blit(char_image[m],(ch_x,ch_y))
     
     pygame.draw.rect(gameWindow,(255,255,255),(50,45,160,30))
@@ -159,6 +175,7 @@ while not exit_game:
                 ud=1
 
     if(m == 4):
+        update_high(score)
         game_over=True
     
     if(score%3 == 0) and hogaya ==0 and original_waiter > 1:
