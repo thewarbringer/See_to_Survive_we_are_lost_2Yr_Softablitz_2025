@@ -13,12 +13,13 @@ gameWindow = pygame.display.set_mode((600,600))
 pygame.display.set_caption("See To Survive")
 pygame.display.update()
 
-isinplay = False
+isinplay = False #for later use
+
 #game specific variables
 char_image = [pygame.image.load('resources/images/s1.png'),pygame.image.load("resources/images/s2.png"),pygame.image.load("resources/images/s3.png"),pygame.image.load("resources/images/s4.png"),pygame.image.load("resources/images/s5.png")]
 colors = [(0,0,0),(255,0,0),(255,255,0),(0,255,0),(0,150,0)]    #colors for healthbar
 exit_game = False
-game_over = False
+game_over = False 
 ch_x = 300 #POSITION OF CHARACTER IN X
 ch_y = 500  #POSITION OF CHARACTER IN Y
 ch_size = 50 #SIZE OF SPRITE
@@ -30,15 +31,15 @@ cc = 0;
 waiter = 5              #waiter is for speed, less waiter => high speed
 original_waiter = 5     #waiter resets to original waiter
 wc = 1;
-m=0             #state of flame
-ud = 0          #to prevent instant state change to 4
-hogaya = 0      #to prevent instant level change to max
-amber_count = 0
-amber_waiter = 0
-empty = 7 #initial setting of the zeroes in matrix
+m=0                 #state of flame / state of character
+ud = 0              #to prevent instant state change to 4
+hogaya = 0          #to prevent instant level change to max
+amber_count = 0     #to check no. of ambers collected
+amber_waiter = 0    #to give delay in amber disappearing
+empty = 7           #initial setting of the zeroes in matrix
 counter_of_waves=1
 matrix = [0,0,0,0,0,0,0,0,0,0,0,0] #matrix for the drops
-amb = 0
+amb = 0             #setting location of amber 
 backs = [pygame.image.load("resources/images/back1.png"),pygame.image.load("resources/images/back2.png"),pygame.image.load("resources/images/back3.png"),pygame.image.load("resources/images/back4.png"),pygame.image.load("resources/images/back5.png"),pygame.image.load("resources/images/back6.png")]
 amber = pygame.image.load("resources/images/amber.png")
 drops = [pygame.image.load("resources/images/dropsmall.png"),pygame.image.load("resources/images/dropbig.png")]
@@ -74,7 +75,7 @@ def fill_matrix():
         matrix[k] = 0
 
 currentCharacterLocation = 6;
-currentCharacterState = 1;
+
 
 
 
@@ -89,7 +90,6 @@ while not exit_game:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit_game = True
-
         if event.type == pygame.KEYDOWN and (not game_over):
             if event.key == pygame.K_RIGHT and ch_x < 550  :
                 ch_x = ch_x + 50;
