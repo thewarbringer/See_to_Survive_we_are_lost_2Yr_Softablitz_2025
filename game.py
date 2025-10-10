@@ -18,7 +18,7 @@ pygame.display.update()
 
 isinplay = False
 #game specific variables
-char_image = [pygame.image.load('resources/images/s1.png'),pygame.image.load("resources/images/s2.png"),pygame.image.load("resources/images/s3.png"),pygame.image.load("resources/images/s4.png"),pygame.image.load("resources/images/s5.png")]
+char_image = [pygame.image.load('resources/images/s1.png'),pygame.image.load("resources/images/s2.png"),pygame.image.load("resources/images/s3.png"),pygame.image.load("resources/images/s4.png"),pygame.image.load("resources/images/s5.png"),pygame.image.load("resources/images/s6.png")]
 colors = [(0,0,0),(255,0,0),(255,255,0),(0,255,0),(0,150,0)]    #colors for healthbar
 exit_game = False
 game_over = False
@@ -27,12 +27,18 @@ ch_y = 500  #POSITION OF CHARACTER IN Y
 ch_size = 50 #SIZE OF SPRITE
 score = 0       #user's score is counted here
 clock = pygame.time.Clock() #clock for ticking
-cc = 0;               
+cc = 0;             
 
+
+
+waves_for_shield = 4
+isShield = False
+shield = 0
+shield_waiter = 0
 
 waiter = 5              #waiter is for speed, less waiter => high speed
 original_waiter = 5     #waiter resets to original waiter
-wc = 1;
+wc = 1             
 m=0             #state of flame
 ud = 0          #to prevent instant state change to 4
 hogaya = 0      #to prevent instant level change to max
@@ -45,7 +51,7 @@ amb = 0
 backs = [pygame.image.load("resources/images/back1.png"),pygame.image.load("resources/images/back2.png"),pygame.image.load("resources/images/back3.png"),pygame.image.load("resources/images/back4.png"),pygame.image.load("resources/images/back5.png"),pygame.image.load("resources/images/back6.png")]
 amber = pygame.image.load("resources/images/amber.png")
 drops = [pygame.image.load("resources/images/dropsmall.png"),pygame.image.load("resources/images/dropbig.png")]
-
+shield_img = pygame.image.load("resources/images/shield.png")
 def update_high(score):
     a = open("resources/high.txt","r")
     k = a.read()
@@ -68,6 +74,15 @@ def generate_amber():
             k = random.randint(0,11)
             amb = k 
 
+def generate_shield():
+    global shield
+    global shield_waiter 
+    if(shield_waiter == 0):
+        if score!=0 and score!=1 and (score%17==0) :
+            shield_waiter = 48;
+
+            k = random.randint(0,11)
+            shield = k 
 def fill_matrix():
     global empty
     global score
@@ -86,7 +101,7 @@ def fill_matrix():
 
 currentCharacterLocation = 6;
 currentCharacterState = 1;
-
+pp=0
 
 uph = 0
 a1 = open("resources/high.txt","r")
@@ -131,8 +146,11 @@ while not exit_game:
     
     gameWindow.blit(text_surface, (50,80))
     gameWindow.blit(text_surface2, (380,80))
-    gameWindow.blit(char_image[m],(ch_x,ch_y))
-    
+    if isShield:
+        gameWindow.blit(char_image[5],(ch_x,ch_y))
+    else:
+        gameWindow.blit(char_image[m],(ch_x,ch_y))
+        
     pygame.draw.rect(gameWindow,(255,255,255),(50,45,160,30))
     pygame.draw.rect(gameWindow,(255,0,255),(55,50,(50*amber_count),20))
     pygame.draw.rect(gameWindow,(255,255,255),(375,45,210,30))
@@ -140,11 +158,12 @@ while not exit_game:
     if(amber_waiter > 0):
         gameWindow.blit(amber,(amb*50,550))
         amber_waiter = amber_waiter - 1
+    if(shield_waiter > 0):
+        gameWindow.blit(shield_img,(shield*50,550))
+        shield_waiter = shield_waiter - 1
+        
     pygame.display.update()
-    if(cc == 12):
-        ud = 0
-        cc = 0
-        score = score + 1
+    
     clock.tick(24)
     if(score == 0):
         k=0
@@ -152,6 +171,19 @@ while not exit_game:
         k=1
     if(cc == 2):
         generate_amber()
+    if(cc == 0):
+        generate_shield()
+    if(cc == 12 and pp ==0):
+        pp=1
+        waves_for_shield = waves_for_shield -1 
+        
+    if waves_for_shield <= 0:
+        isShield = False  
+    if(cc == 12):
+        pp =0
+        ud = 0
+        cc = 0
+        score = score + 1
     if(currentCharacterLocation == amb and amber_waiter>0):
         amber_waiter = 0
         amber_count = amber_count+1
@@ -162,10 +194,17 @@ while not exit_game:
                 m = m -1
         else:
             coin_sound.play()
+        
+    if(currentCharacterLocation == shield and shield_waiter>0 and not isShield):
+        waves_for_shield = 4
+        isShield = True
+        shield_waiter = 0
+        coin_sound.play()
+          
     if(cc == 11 and ud == 0):
-        if(matrix[currentCharacterLocation]!=0 and ud ==0 and not game_over):
+        if(matrix[currentCharacterLocation]!=0 and ud ==0 and not game_over and not isShield):
             aah_sound.play()
-        if((m+matrix[currentCharacterLocation]) <= 5 ):
+        if((m+matrix[currentCharacterLocation]) <= 5 and not isShield):
             if((m+matrix[currentCharacterLocation])==5):
                 m = 4
                 ud = 1
