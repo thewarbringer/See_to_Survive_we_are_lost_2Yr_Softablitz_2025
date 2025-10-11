@@ -3,7 +3,18 @@ import random
 from pygame import mixer
 pygame.init()
 mixer.init()
+import os
 
+gameWindow2 = pygame.display.set_mode((1200,600))
+
+gameWindow = pygame.display.set_mode((600,600))
+pygame.display.set_caption("See To Survive")
+pygame.display.update()
+######################################################################################
+######################################################################################
+######################################################################################
+isinplay = False
+#game specific variables
 pygame.font.init() 
 my_font = pygame.font.SysFont('Comic Sans MS', 30)
 coin_sound= mixer.Sound("resources/music/coin.mp3")
@@ -12,12 +23,6 @@ one_up_sound = mixer.Sound("resources/music/oneup.mp3")
 mixer.music.load("resources/music/thunder.mp3")
 mixer.music.set_volume(1)
 mixer.music.play(-1)
-gameWindow = pygame.display.set_mode((600,600))
-pygame.display.set_caption("See To Survive")
-pygame.display.update()
-
-isinplay = False
-#game specific variables
 char_image = [pygame.image.load('resources/images/s1.png'),pygame.image.load("resources/images/s2.png"),pygame.image.load("resources/images/s3.png"),pygame.image.load("resources/images/s4.png"),pygame.image.load("resources/images/s5.png"),pygame.image.load("resources/images/s6.png")]
 colors = [(0,0,0),(255,0,0),(255,255,0),(0,255,0),(0,150,0)]    #colors for healthbar
 exit_game = False
@@ -28,8 +33,6 @@ ch_size = 50 #SIZE OF SPRITE
 score = 0       #user's score is counted here
 clock = pygame.time.Clock() #clock for ticking
 cc = 0;             
-
-
 
 waves_for_shield = 4
 isShield = False
@@ -108,6 +111,19 @@ a1 = open("resources/high.txt","r")
 high_score = a1.read()
 
 
+
+
+
+
+
+
+
+
+
+
+######################################################################################
+######################################################################################
+######################################################################################
 def gameStart():    
     global exit_game
     global uph
@@ -120,7 +136,7 @@ def gameStart():
     global ch_x,ch_y
     global amber_count,amber,amb,amber_waiter
     global shield,shield_waiter,isShield,waves_for_shield
-    while not exit_game:
+    while not exit_game :
         if(uph != 1):
             uph =1;
         if(cc == 1):
@@ -134,6 +150,7 @@ def gameStart():
                 exit_game = True
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
+                    original_waiter=5
                     shield=0
                     shield_waiter=0
                     isShield=0
@@ -141,7 +158,7 @@ def gameStart():
                     amber_count=0
                     amber_waiter=0
                     ch_x=300
-                    waiter=0
+                    waiter=5
                     game_over=False
                     uph=0
                     cc=0
@@ -194,7 +211,16 @@ def gameStart():
         if(shield_waiter > 0):
             gameWindow.blit(shield_img,(shield*50,550))
             shield_waiter = shield_waiter - 1
-
+        if game_over:
+            rest = pygame.image.load("resources/images/resta.png")
+            gameWindow.blit(rest,(0,0))
+            texti = "Your Score:"+str(score)
+            text_surface = my_font.render(texti, False, (155, 55, 255))
+            text2 = "High Score:"+str(high_score)
+            text_surface2 = my_font.render(text2, False, (155, 55, 255))
+            gameWindow.blit(text_surface, (250,250))
+            gameWindow.blit(text_surface2, (250,310))
+        
         pygame.display.update()
 
         clock.tick(24)
@@ -255,5 +281,43 @@ def gameStart():
             hogaya = 1
         if(score%3 != 0):
             hogaya = 0;
-gameStart()
+        
+######################################################################################
+######################################################################################
+######################################################################################
+front = pygame.image.load("resources/images/front.png")
+global dis
+dis = False
+def StartWindow():
+    global exit_game
+    global dis
+    while not dis:
+        dis =False       
+        gameWindow2.blit(front,(0,0))
+        
+        gameWindow.blit(front,(0,0))
+        for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    exit_game = True
+                    dis = True
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_i:
+                        dis = True
+                        gameStart()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_u:
+                        os.system("python twopg.py")
+                        exit()
+                        
+                        
+                        
+        global my_font
+        text2 = "High Score :"+str(high_score)
+        text_surface2 = my_font.render(text2, False, (55, 55, 255))
+        gameWindow.blit(text_surface2, (200,300))
+        pygame.display.update()
+
+
+StartWindow()
+
 pygame.quit()
